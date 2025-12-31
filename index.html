@@ -113,23 +113,12 @@
         #loading-text { color: #ffd700; font-size: 1.2rem; letter-spacing: 3px; animation: pulse 1s infinite alternate; }
         @keyframes pulse { from { opacity: 0.5; } to { opacity: 1; text-shadow: 0 0 20px #ffd700; } }
 
-        #photo-text {
-            position: absolute; top: 50%; left: 50%; z-index: 300;
-            background: rgba(0,0,0,0.7); border: 1px solid rgba(255,215,0,0.5);
-            color: #ffd700; padding: 15px; border-radius: 8px;
-            backdrop-filter: blur(4px); transition: 0.3s;
-            display: none; max-width: 300px; word-wrap: break-word;
-            transform: translate(-50%, -50%);
-            font-size: 16px; text-align: center;
-        }
-
         @media screen and (max-width: 768px) {
             h1 { font-size: 1.8rem; letter-spacing: 2px; }
             #ui-layer { top: 20px; left: 20px; width: calc(100% - 40px); }
             .instructions { font-size: 0.85rem; padding: 10px; max-width: none; width: 100%; box-sizing: border-box;}
             #start-btn { padding: 15px 40px; font-size: 1.4rem; }
             #controls { top: 15px; right: 15px; }
-            #photo-text { max-width: 250px; font-size: 14px; }
         }
     </style>
     <script async src="https://unpkg.com/es-module-shims@1.8.0/dist/es-module-shims.js"></script>
@@ -156,13 +145,13 @@
             <div class="icon-btn" id="fullscreen-btn" onclick="toggleFullscreen()">⛶</div>
         </div>
 
-        <div id="photo-text"></div>
-
         <div id="start-screen">
             <div id="loading-text">资源预加载中 (0%)...</div>
             <div class="start-controls">
                 <button id="start-btn" onclick="startExperience()">开启 2026</button>
+                <button id="upload-btn" onclick="document.getElementById('file-input').click()">上传照片</button>
             </div>
+            <input type="file" id="file-input" multiple accept="image/*">
         </div>
 
         <div id="ui-layer">
@@ -174,8 +163,7 @@
                 • <span class="highlight">点击中心</span> : 聚合/散开蛋糕<br/>
                 • <span class="highlight">点击照片</span> : 放大查看
             </div>
-            <button id="cake-upload-btn" onclick="window.location.href='https://dz.2cy.ink/'">联系定制</button>
-            <button id="cake-upload-btn" onclick="window.location.href='https://wendatu.cn/'">AI创作</button>
+            <button id="cake-upload-btn" onclick="document.getElementById('file-input').click()">+ 添加照片</button>
         </div>
     </div>
 
@@ -275,16 +263,13 @@
         function updateUIForFullscreen(isFull) {
             const uiLayer = document.getElementById('ui-layer');
             const controls = document.getElementById('controls');
-            const photoText = document.getElementById('photo-text');
 
             if (isFull) {
                 uiLayer.classList.add('force-hide');
                 controls.classList.add('force-hide');
-                photoText.classList.add('force-hide');
             } else {
                 uiLayer.classList.remove('force-hide');
                 controls.classList.remove('force-hide');
-                photoText.classList.remove('force-hide');
             }
             setTimeout(onWindowResize, 100);
             setTimeout(onWindowResize, 500);
@@ -388,9 +373,10 @@
                     await preCalculateTargets(); 
                     document.getElementById('loading-text').style.display = 'none';
                     document.getElementById('start-btn').style.display = 'inline-block';
+                    document.getElementById('upload-btn').style.display = 'inline-block';
                     
-                    // 加载预设照片
-                    loadPresetPhotos();
+                    // 添加内置照片
+                    addBuiltinPhotos();
                 }, undefined, function(err) {
                     console.error("字体加载失败", err);
                     document.getElementById('loading-text').innerText = "资源加载失败，请刷新重试";
@@ -403,6 +389,55 @@
                 document.getElementById('loading-text').innerText = "初始化错误，请检查浏览器兼容性";
             }
         }
+
+       // 添加内置照片
+function addBuiltinPhotos() {
+    // 示例图片URL（已修改为GitHub原始图片地址，可直接加载）
+    const photoUrls = [
+        { src: 'https://raw.githubusercontent.com/GQS220509/666/main/photo/%E4%B8%89%E5%8D%81%E5%85%AD%E7%A2%B0%E6%9D%AF.jpg', text: '这是我们心心念念很久的野果虽然不太好吃但是还是一段很美好的纪念' },
+        { src: 'https://raw.githubusercontent.com/GQS220509/666/main/photo/%E5%85%AB%E4%B8%AD%E7%AF%9D%E7%81%AB%E8%8A%82.jpg', text: '我们第一次合照，也是我们第一次在一起过的元旦晚会很开心，和小美有了第一段照片回忆' },
+        { src: 'https://raw.githubusercontent.com/GQS220509/666/main/photo/%E5%89%8D%E5%BE%80%E5%8E%A6%E9%97%A8.jpg', text: '这是我们的第一次旅行我们去到了厦门真的很美，心里特别的激动' },
+        { src: 'https://raw.githubusercontent.com/GQS220509/666/main/photo/%E5%8E%A6%E9%97%A8%E6%B2%99%E5%9D%A1%E5%B0%BE.jpg', text: '来到厦门的合照，沙坡尾很好玩' },
+        { src: 'https://raw.githubusercontent.com/GQS220509/666/main/photo/%E5%8E%A6%E9%97%A8%E8%9D%B4%E8%9D%B6.jpg', text: '小美和和蝴蝶的照片也是超级的美' },
+        { src: 'https://raw.githubusercontent.com/GQS220509/666/main/photo/%E5%A4%A7%E5%A4%B4%E7%85%A7.jpg', text: '我们的大头照，我”舍命陪君子“但是真的很好看' },
+        { src: 'https://raw.githubusercontent.com/GQS220509/666/main/photo/%E5%A4%A9%E9%97%A8%E5%B1%B1%E6%89%8B%E6%9C%BA%E5%90%88%E7%85%A7.jpg', text: '第一次我的小构思得到了夸奖' },
+        { src: 'https://raw.githubusercontent.com/GQS220509/666/main/photo/%E6%9C%80%E6%96%B0%E7%9A%84%E6%AD%A6%E6%B1%89%E4%B9%8B%E6%97%85.jpg', text: '好喜欢这张照片，最近的一次武汉之旅' },
+        { src: 'https://raw.githubusercontent.com/GQS220509/666/main/photo/%E6%AF%95%E4%B8%9A%E5%85%B8%E7%A4%BC%E5%90%88%E7%85%A7.jpg', text: '为我们的高中生活画上了一段句号' },
+        { src: 'https://raw.githubusercontent.com/GQS220509/666/main/photo/%E6%B2%99%E6%BB%A9%E7%BE%8E%E7%85%A7.jpg', text: '我手机里面小美最好看的一张照片了' },
+        { src: 'https://raw.githubusercontent.com/GQS220509/666/main/photo/%E7%AC%AC%E4%B8%80%E6%AC%A1%E6%9D%A5%E6%AD%A6%E6%B1%89%E6%88%91%E7%9A%84%E5%81%B7%E6%8B%8D.jpg', text: '小美的第一次武汉游被我偷拍下来了' },
+        { src: 'https://raw.githubusercontent.com/GQS220509/666/main/photo/%E9%85%92%E5%BA%97%E5%AF%B9%E9%95%9C%E8%87%AA%E6%8B%8D.jpg', text: '小美衣服没有带够穿她给我买的衣服' },
+    ];
+
+    // 加载内置照片
+    photoUrls.forEach((photoItem, index) => { // 改动1：修正遍历参数，获取包含src的对象
+        const img = new Image();
+        img.crossOrigin = "anonymous"; // 允许跨域加载
+        img.src = photoItem.src; // 改动2：获取对象中的src属性（实际图片地址）
+        img.onload = () => {
+            addPhotoMesh(img);
+        };
+        img.onerror = () => {
+            // 如果图片加载失败，使用默认的canvas图片
+            const canvas = document.createElement('canvas');
+            canvas.width = 200;
+            canvas.height = 200;
+            const ctx = canvas.getContext('2d');
+            ctx.fillStyle = `hsl(${index * 60}, 70%, 60%)`;
+            ctx.fillRect(0, 0, 200, 200);
+            ctx.fillStyle = 'white';
+            ctx.font = '20px Arial';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('照片', 100, 100);
+            
+            const imgFallback = new Image();
+            imgFallback.src = canvas.toDataURL();
+            imgFallback.onload = () => {
+                addPhotoMesh(imgFallback);
+            };
+        };
+    });
+}
 
         // --- 新增：交互事件处理 ---（hcc的原创代码 请勿侵权或随意传播 定制联系qq840473750）
         function setupInteraction() {
@@ -481,9 +516,6 @@
                     currentState = STATE.ZOOM;
                     zoomTargetIndex = photoMeshes.indexOf(intersects[0].object);
                     document.getElementById('status-text').innerHTML = "状态: <span style='color:#ffd700'>查看照片</span>";
-                    
-                    // 显示照片的文本
-                    showPhotoText(zoomTargetIndex);
                     return;
                 }
             }
@@ -494,9 +526,6 @@
                 currentState = STATE.SCATTER;
                 zoomTargetIndex = -1;
                 document.getElementById('status-text').innerHTML = "状态: <span style='color:#00aaff'>星云散开</span>";
-                
-                // 隐藏照片文本
-                hidePhotoText();
             } else if (currentState === STATE.SCATTER) {
                 // 散开 -> 聚合
                 currentState = STATE.TREE;
@@ -910,11 +939,6 @@
                     // 相机平滑缩放
                     camera.position.z += (targetCameraZ - camera.position.z) * 0.1;
                 }
-                
-                // 更新照片文本位置
-                if (currentState === STATE.ZOOM && zoomTargetIndex >= 0) {
-                    updatePhotoTextPosition();
-                }
             }
             composer.render();
         }
@@ -1025,35 +1049,20 @@
             composer.passes[1].resolution.set(dims.width, dims.height);
         }
 
-        // 预设照片数据
-        const presetPhotos = [
-            { src: 'https://github.com/GQS220509/666/blob/main/photo/%E4%B8%89%E5%8D%81%E5%85%AD%E7%A2%B0%E6%9D%AF.jpg', text: '这是我们心心念念很久的野果虽然不太好吃但是还是一段很美好的纪念' },
-            { src: 'https://github.com/GQS220509/666/blob/main/photo/%E5%85%AB%E4%B8%AD%E7%AF%9D%E7%81%AB%E8%8A%82.jpg', text: '我们第一次合照，也是我们第一次在一起过的元旦晚会很开心，和小美有了第一段照片回忆' },
-            { src: 'https://github.com/GQS220509/666/blob/main/photo/%E5%89%8D%E5%BE%80%E5%8E%A6%E9%97%A8.jpg', text: '厦门' },
-            { src: 'https://github.com/GQS220509/666/blob/main/photo/%E5%8E%A6%E9%97%A8%E6%B2%99%E5%9D%A1%E5%B0%BE.jpg', text: '沙坡尾' },
-            { src: 'https://github.com/GQS220509/666/blob/main/photo/%E5%8E%A6%E9%97%A8%E8%9D%B4%E8%9D%B6.jpg', text: '蝴蝶' },
-            { src: 'https://github.com/GQS220509/666/blob/main/photo/%E5%A4%A7%E5%A4%B4%E7%85%A7.jpg', text: '大头照' },
-            { src: 'https://github.com/GQS220509/666/blob/main/photo/%E5%A4%A9%E9%97%A8%E5%B1%B1%E6%89%8B%E6%9C%BA%E5%90%88%E7%85%A7.jpg', text: '天门山' },
-            { src: 'https://github.com/GQS220509/666/blob/main/photo/%E6%9C%80%E6%96%B0%E7%9A%84%E6%AD%A6%E6%B1%89%E4%B9%8B%E6%97%85.jpg', text: '武汉花' },
-            { src: 'https://github.com/GQS220509/666/blob/main/photo/%E6%AF%95%E4%B8%9A%E5%85%B8%E7%A4%BC%E5%90%88%E7%85%A7.jpg', text: '毕业典礼' },
-            { src: 'https://github.com/GQS220509/666/blob/main/photo/%E6%B2%99%E6%BB%A9%E7%BE%8E%E7%85%A7.jpg', text: '沙滩美照' },
-            { src: 'https://github.com/GQS220509/666/blob/main/photo/%E7%AC%AC%E4%B8%80%E6%AC%A1%E6%9D%A5%E6%AD%A6%E6%B1%89%E6%88%91%E7%9A%84%E5%81%B7%E6%8B%8D.jpg', text: '武汉偷拍' },
-            { src: 'https://github.com/GQS220509/666/blob/main/photo/%E9%85%92%E5%BA%97%E5%AF%B9%E9%95%9C%E8%87%AA%E6%8B%8D.jpg', text: '对镜自拍' },
-        ];
-
-        function loadPresetPhotos() {
-            presetPhotos.forEach((photoData, index) => {
-                const img = new Image();
-                img.src = photoData.src;
-                img.onload = () => {
-                    const mesh = addPhotoMesh(img);
-                    mesh.userData.text = photoData.text;
-                };
-                img.onerror = () => {
-                    console.error(`加载照片失败: ${photoData.src}`);
-                };
-            });
-        }
+        document.getElementById('file-input').addEventListener('change', function(e) {
+            const files = e.target.files;
+            if (!files.length) return;
+            for(let i=0; i<files.length; i++) {
+                const reader = new FileReader();
+                reader.onload = function(evt) {
+                    const img = new Image();
+                    img.src = evt.target.result;
+                    img.onload = () => { addPhotoMesh(img); }
+                }
+                reader.readAsDataURL(files[i]);
+            }
+            alert(`已添加 ${files.length} 张照片`);
+        });
 
         function addPhotoMesh(img) {
             const tex = new THREE.Texture(img);
@@ -1087,63 +1096,12 @@
             const h_pos = Math.random() * tier.height;
             const r = tier.radius * 1.1; const theta = Math.random() * Math.PI * 2;
             const treePos = new THREE.Vector3(r * Math.cos(theta), tier.yBottom + h_pos, r * Math.sin(theta));
-            mesh.userData = { 
-                treePos, 
-                scatterPos: randomSpherePoint(50), 
-                baseRot: new THREE.Euler(0, Math.random()*Math.PI, 0),
-                text: '默认文字'
-            };
+            mesh.userData = { treePos, scatterPos: randomSpherePoint(50), baseRot: new THREE.Euler(0, Math.random()*Math.PI, 0) };
             mesh.position.copy(treePos);
             photoMeshes.push(mesh);
             mainGroup.add(mesh);
-            
-            return mesh;
         }
-
-        // 显示照片的文本
-        function showPhotoText(photoIndex) {
-            if (photoIndex >= 0 && photoIndex < photoMeshes.length) {
-                const photoMesh = photoMeshes[photoIndex];
-                const textElement = document.getElementById('photo-text');
-                textElement.innerText = photoMesh.userData.text || '默认文字';
-                textElement.style.display = 'block';
-                
-                // 根据相机位置更新文本位置
-                updatePhotoTextPosition();
-            }
-        }
-
-        // 隐藏照片的文本
-        function hidePhotoText() {
-            document.getElementById('photo-text').style.display = 'none';
-        }
-
-        // 更新照片文本位置
-        function updatePhotoTextPosition() {
-            if (currentState === STATE.ZOOM && zoomTargetIndex >= 0 && zoomTargetIndex < photoMeshes.length) {
-                const photoMesh = photoMeshes[zoomTargetIndex];
-                const worldPos = new THREE.Vector3();
-                photoMesh.getWorldPosition(worldPos);
-                
-                // 将3D坐标转换为屏幕坐标
-                worldPos.project(camera);
-                
-                const width = window.innerWidth;
-                const height = window.innerHeight;
-                
-                const x = (worldPos.x * 0.5 + 0.5) * width;
-                const y = (-worldPos.y * 0.5 + 0.5) * height;
-                
-                const textElement = document.getElementById('photo-text');
-                textElement.style.left = x + 'px';
-                textElement.style.top = (y - 100) + 'px'; // 在图片上方显示
-            }
-        }
-
-        // 监听窗口大小变化，更新文本位置
-        window.addEventListener('resize', updatePhotoTextPosition);
 
         initThree();
     </script>
 </body>
-</html>
